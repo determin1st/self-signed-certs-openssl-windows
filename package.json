@@ -1,0 +1,17 @@
+{
+  "name": "self-signed-certs-openssl-windows",
+  "description": "Individual batch script for HTTPS on localhost cert generation + some ready-to-use certs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/determin1st/self-signed-certs-openssl-windows.git"
+  },
+  "keywords": [
+    "self-signed",
+    "openssl",
+    "windows",
+    "apache",
+    "server",
+    "cert"
+  ],
+  "version": "1.0.0"
+}
