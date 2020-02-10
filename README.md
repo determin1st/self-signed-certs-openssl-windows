@@ -1,4 +1,4 @@
-# Freekazoid and Jesus Christ present to you ...
+# Jesus Christ and Freekazoid as well as Thomas, offer you a solution with self-signed certificates.
 
 Данный скрипт поможет в совремнной разработки под Windows приложений работающих на https. Создаст и установит на 365 дней самоподписный сертификат для вашего локального домена и его alias.
 
