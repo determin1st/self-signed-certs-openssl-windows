@@ -4,22 +4,27 @@ cls
 set OSSL=..\bin\openssl.exe
 set OPENSSL_CONF=.\cert_gen.cnf
 set EXTFILE=cert_gen.ext
+set CNAME=CA
 echo.
 goto BEG
 
 :BEG
-rem Cleanup shit
-del server.*
+rem Cleanup previous cert(?)
+del %CNAME%.*
 ::%OSSL% rand -out .rnd -hex 256
 goto ONE
 
 :ONE
 rem Use "%windir%\system32\drivers\etc\hosts" to set aliases
 rem One cert
-%OSSL% genrsa -des3 -out server.key.secure 2048
-%OSSL% rsa -in server.key.secure -out server.key
-%OSSL% req -new -key server.key -out server.csr
-%OSSL% x509 -req -days 365 -in server.csr -signkey server.key -extfile makecert.ext -out server.crt
+%OSSL% genrsa -des3 -out %CNAME%.secure 2048
+%OSSL% rsa -in %CNAME%.secure -out %CNAME%.key
+%OSSL% req -new -key %CNAME%.key -out %CNAME%.csr
+%OSSL% x509 -req -days 365 -in %CNAME%.csr -signkey %CNAME%.key -extfile %EXTFILE% -out %CNAME%.pem.crt
+rem Create .der cert for Android
+%OSSL% x509 -inform PEM -outform DER -in %CNAME%.pem.crt -out %CNAME%_android.der.crt
+rem Cleanup(?)
+del %CNAME%.secure
 goto END
 
 :TWO

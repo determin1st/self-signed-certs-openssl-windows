@@ -105,7 +105,7 @@ organizationalUnitName = Organizational Unit Name (eg, section)
 organizationalUnitName_default = $ENV::KEY_ORGUNIT
 
 commonName             = Common Name (eg, your name or your server\'s hostname)
-commonName_default     = localhost
+commonName_default     = alias.local
 commonName_max         = 64
 
 emailAddress           = Email Address
