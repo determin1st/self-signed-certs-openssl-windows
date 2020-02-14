@@ -2,37 +2,37 @@
 color 0A
 cls
 set OSSL=..\bin\openssl.exe
-set OPENSSL_CONF=.\cert_gen.cnf
-set EXTFILE=cert_gen.ext
-set CNAME=CA
+set OPENSSL_CONF=.\cert_gen.conf
+set CNAME=alias.local
+set FNAME=test
+set K_E1=basicConstraints=CA:TRUE,pathlen:0
+set K_E2=keyUsage=digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
+set K_E3=authorityKeyIdentifier=keyid,issuer
+set K_E4=subjectAltName=DNS:%CNAME%
+set K_SUBJ=-subj "/CN=%CNAME%/O=opensourceclub/OU=dev/L=none/ST=NO/C=US"
+set K_EXT=-addext "%K_E1%" -addext "%K_E2%"
 echo.
 goto BEG
 
 :BEG
-rem Cleanup previous cert(?)
-del %CNAME%.*
-::%OSSL% rand -out .rnd -hex 256
+:: Cleanup previous
+del %FNAME%.*
 goto ONE
 
 :ONE
-rem Use "%windir%\system32\drivers\etc\hosts" to set aliases
-rem One cert
-%OSSL% genrsa -des3 -out %CNAME%.secure 2048
-%OSSL% rsa -in %CNAME%.secure -out %CNAME%.key
-%OSSL% req -new -key %CNAME%.key -out %CNAME%.csr
-%OSSL% x509 -req -days 365 -in %CNAME%.csr -signkey %CNAME%.key -extfile %EXTFILE% -out %CNAME%.pem.crt
-rem Create .der cert for Android
-%OSSL% x509 -inform PEM -outform DER -in %CNAME%.pem.crt -out %CNAME%_android.der.crt
-rem Cleanup(?)
-del %CNAME%.secure
-goto END
-
-:TWO
-rem Two certs (not working)
-%OSSL% req -x509 -nodes -new -sha256 -days 1024 -newkey rsa:2048 -keyout RootCA.key -out RootCA.pem -subj "/C=US/CN=Custom-Root-CA"
-%OSSL% x509 -outform pem -in RootCA.pem -out RootCA.crt
-%OSSL% req -new -nodes -newkey rsa:2048 -keyout server.key -out server.csr -subj "/C=US/ST=State/L=City/O=Custom-Certificates/CN=localhost"
-%OSSL% x509 -req -sha256 -days 1024 -in server.csr -CA RootCA.pem -CAkey RootCA.key -CAcreateserial -extfile makecert.ext -out server.crt
+:: stage 1
+%OSSL% genrsa -des3 -passout pass:12345 -out %FNAME%.secure 2048
+%OSSL% rsa -passin pass:12345 -in %FNAME%.secure -out %FNAME%.key
+:: stage 2
+%OSSL% req -new -key %FNAME%.key -out %FNAME%.csr -outform PEM %K_SUBJ% %K_EXT%
+echo %K_E1%> %FNAME%.ext
+echo %K_E2%>> %FNAME%.ext
+echo %K_E3%>> %FNAME%.ext
+echo %K_E4%>> %FNAME%.ext
+%OSSL% x509 -req -in %FNAME%.csr -signkey %FNAME%.key -out %FNAME%.pem.crt -outform PEM -days 365 -extfile %FNAME%.ext
+del %FNAME%.ext
+:: stage 3
+%OSSL% x509 -inform PEM -outform DER -in %FNAME%.pem.crt -out %FNAME%_android.der.crt
 goto END
 
 :END
